@@ -4,13 +4,16 @@ import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.DRAW;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.ONGOING_GAME;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.WIN;
 
+import java.util.Random;
+
 public class Game {
 
     static char[][] grid = new char[3][3];
+    static State currentState = ONGOING_GAME;
     static int xAmount = 0;
     static int OAmount = 0;
 
-    void showCurrentGrid(Terminal terminal, char[][] grid) {
+    void showCurrentGrid(Terminal terminal) {
         terminal.println("---------");
         terminal.println(
             "| " + grid[0][0] + " " + grid[0][1] + " " + grid[0][2] + " |");
@@ -21,35 +24,35 @@ public class Game {
         terminal.println("---------");
     }
 
-    boolean makeAMove(Terminal terminal, String input) {
+    void humanMoves(Terminal terminal) {
         boolean isGamerMoved = false;
-        String[] coordinates = input.split(" ");
-        int column = 0;
-        int row = 0;
-        boolean isCoordinatesNumbers = isCoordinatesNumbers(coordinates);
-        if (isCoordinatesNumbers) {
-            column = Integer.parseInt(coordinates[0]);
-            row = Integer.parseInt(coordinates[1]);
-        } else {
-            terminal.println("You should enter numbers!");
-        }
-        if (isCoordinatesNumbers) {
-            if (!isCoordinatesCorrect(column, row)) {
-                terminal.println("Coordinates should be from 1 to 3!");
-            } else if (!isCellOccupied(column, row)) {
-                terminal.println("This cell is occupied! Choose another one!");
+        String input;
+        do {
+            terminal.println("Enter the coordinates: ");
+            input = terminal.readLine();
+            String[] coordinates = input.split(" ");
+            int column = 0;
+            int row = 0;
+            boolean isCoordinatesNumbers = isCoordinatesNumbers(coordinates);
+            if (isCoordinatesNumbers) {
+                column = Integer.parseInt(coordinates[0]);
+                row = Integer.parseInt(coordinates[1]);
             } else {
-                isGamerMoved = true;
-                if (xAmount == OAmount) {
+                terminal.println("You should enter numbers!");
+            }
+            if (isCoordinatesNumbers) {
+                if (!isCoordinatesCorrect(column, row)) {
+                    terminal.println("Coordinates should be from 1 to 3!");
+                } else if (!isCellOccupied(column, row)) {
+                    terminal.println("This cell is occupied! Choose another one!");
+                } else {
+                    isGamerMoved = true;
                     grid[column - 1][row - 1] = 'X';
                     xAmount++;
-                } else if (xAmount > OAmount) {
-                    grid[column - 1][row - 1] = 'O';
-                    OAmount++;
                 }
             }
-        }
-        return isGamerMoved;
+        } while (!isGamerMoved);
+        showCurrentGrid(terminal);
     }
 
     boolean isCoordinatesNumbers(String[] coordinates) {
@@ -65,7 +68,37 @@ public class Game {
         return grid[column - 1][row - 1] == ' ';
     }
 
-    void getGameResult(Terminal terminal, char[][] grid) {
+    void aiMoves(Terminal terminal) {
+        boolean isAIMoved = false;
+        Random random = new Random();
+        int col;
+        int row;
+        do {
+            col = random.nextInt(3) + 1;
+            row = random.nextInt(3) + 1;
+            if (isCellOccupied(col, row)) {
+                grid[col - 1][row - 1] = 'O';
+                isAIMoved = true;
+                OAmount++;
+            }
+        } while (!isAIMoved);
+        terminal.println("Making move level \"" + Level.EASY.getMessage() + "\"");
+        showCurrentGrid(terminal);
+    }
+
+    void playGame(Terminal terminal) {
+        do {
+            humanMoves(terminal);
+            if (xAmount + OAmount != 9) {
+                aiMoves(terminal);
+            }
+            if (OAmount + xAmount > 2) {
+                getGameResult(terminal);
+            }
+        } while (currentState == ONGOING_GAME);
+    }
+
+    void getGameResult(Terminal terminal) {
         char winner = ' ';
         //row and column
         for (int i = 0; i < 3; i++) {
@@ -84,10 +117,12 @@ public class Game {
             winner = grid[2][0];
         }
         if (winner == ' ' && xAmount + OAmount < 9) {
-            terminal.println(ONGOING_GAME.getMessage());
+            currentState = ONGOING_GAME;
         } else if (winner == ' ' && xAmount + OAmount == 9) {
+            currentState = DRAW;
             terminal.println(DRAW.getMessage());
         } else if (winner != ' ') {
+            currentState = WIN;
             terminal.println(winner + WIN.getMessage());
         }
     }

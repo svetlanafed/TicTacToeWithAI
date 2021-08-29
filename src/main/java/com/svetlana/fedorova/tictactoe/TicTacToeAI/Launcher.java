@@ -11,13 +11,7 @@ public class Launcher {
         //StartGrid grid = new StartGridFromLineImpl();
 
         grid.createStartGrid(terminal);
-        game.showCurrentGrid(terminal, Game.grid);
-        boolean isGamerMoved;
-        do {
-            terminal.println("Enter the coordinates: ");
-            isGamerMoved = game.makeAMove(terminal, terminal.readLine());
-        } while (!isGamerMoved);
-        game.showCurrentGrid(terminal, Game.grid);
-        game.getGameResult(terminal, Game.grid);
+        game.showCurrentGrid(terminal);
+        game.playGame(terminal);
     }
 }
