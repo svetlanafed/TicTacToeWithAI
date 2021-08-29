@@ -6,37 +6,9 @@ import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.WIN;
 
 public class Game {
 
-    private static char[][] grid = new char[3][3];
-    private static int xAmount = 0;
-    private static int OAmount = 0;
-
-    void enterStartGrid(Terminal terminal, String input) {
-        int i = 0;
-        for (int j = 0; j < 3; j++) {
-            for (int k = 0; k < 3; k++) {
-                grid[j][k] = input.charAt(i);
-                i++;
-            }
-        }
-    }
-
-    boolean isInputLineCorrect(Terminal terminal, String input) {
-        boolean isCorrect = false;
-        if (input.length() == 9) {
-            for (int i = 0; i < 9; i++) {
-                if (input.charAt(i) != 'X' && input.charAt(i) != 'O'
-                    && input.charAt(i) != '_') {
-                    terminal.println("Grid can include only X, O or _");
-                    isCorrect = false;
-                } else {
-                    isCorrect = true;
-                }
-            }
-        } else {
-            terminal.println("Please enter 9 symbols");
-        }
-        return isCorrect;
-    }
+    static char[][] grid = new char[3][3];
+    static int xAmount = 0;
+    static int OAmount = 0;
 
     void showCurrentGrid(Terminal terminal, char[][] grid) {
         terminal.println("---------");
@@ -47,17 +19,6 @@ public class Game {
         terminal.println(
             "| " + grid[2][0] + " " + grid[2][1] + " " + grid[2][2] + " |");
         terminal.println("---------");
-    }
-
-    void countStartXandO(String input) {
-        char[] charArray = input.toCharArray();
-        for (char c : charArray) {
-            if (c == 'X') {
-                xAmount++;
-            } else if (c == 'O') {
-                OAmount++;
-            }
-        }
     }
 
     boolean makeAMove(Terminal terminal, String input) {
@@ -101,25 +62,25 @@ public class Game {
     }
 
     boolean isCellOccupied(int column, int row) {
-        return grid[column - 1][row - 1] == '_';
+        return grid[column - 1][row - 1] == ' ';
     }
 
     void getGameResult(Terminal terminal, char[][] grid) {
         char winner = ' ';
         //row and column
         for (int i = 0; i < 3; i++) {
-            if (grid[i][0] == grid[i][1] && grid[i][1] == grid[i][2] && grid[i][0] != '_') {
+            if (grid[i][0] == grid[i][1] && grid[i][1] == grid[i][2] && grid[i][0] != ' ') {
                 winner = grid[i][0];
-            } else if (grid[0][i] == grid[1][i] && grid[1][i] == grid[2][i] && grid[0][i] != '_') {
+            } else if (grid[0][i] == grid[1][i] && grid[1][i] == grid[2][i] && grid[0][i] != ' ') {
                 winner = grid[0][i];
             }
         }
         //1st diagonal
-        if (grid[0][0] == grid[1][1] && grid[1][1] == grid[2][2] && grid[0][0] != '_') {
+        if (grid[0][0] == grid[1][1] && grid[1][1] == grid[2][2] && grid[0][0] != ' ') {
             winner = grid[0][0];
         }
         //2d diagonal
-        if (grid[2][0] == grid[1][1] && grid[1][1] == grid[0][2] && grid[2][0] != '_') {
+        if (grid[2][0] == grid[1][1] && grid[1][1] == grid[0][2] && grid[2][0] != ' ') {
             winner = grid[2][0];
         }
         if (winner == ' ' && xAmount + OAmount < 9) {
@@ -129,9 +90,5 @@ public class Game {
         } else if (winner != ' ') {
             terminal.println(winner + WIN.getMessage());
         }
-    }
-
-    public static char[][] getGrid() {
-        return grid;
     }
 }
