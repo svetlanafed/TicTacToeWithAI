@@ -1,7 +1,6 @@
 package com.svetlana.fedorova.tictactoe.TicTacToeAI;
 
-public class StartGridFromLineImpl implements
-    StartGrid {
+public class StartGridFromLineImpl implements StartGrid {
 
     @Override
     public void createStartGrid(Terminal terminal) {
