@@ -8,8 +8,10 @@ import java.util.Random;
 
 public class Game {
 
-    private static char[][] grid = new char[3][3];
+    static char[][] grid = new char[3][3];
     private static State currentState = ONGOING_GAME;
+    private static String firstPlayer;
+    private static String secondPlayer;
     static int xAmount = 0;
     static int OAmount = 0;
 
@@ -24,19 +26,66 @@ public class Game {
         terminal.println("---------");
     }
 
+    public String getGameParam(Terminal terminal, String inputLine) {
+        String command = null;
+        xAmount = 0;
+        OAmount = 0;
+        currentState = State.ONGOING_GAME;
+        String[] input = inputLine.split(" ");
+        if (isCommandCorrect(input)) {
+            command = input[0];
+            if (input.length == 3) {
+                firstPlayer = input[1];
+                secondPlayer = input[2];
+            }
+        } else {
+            terminal.println("Bad parameters!");
+        }
+        return command;
+    }
+
+    private boolean isCommandCorrect(String[] input) {
+        boolean result = false;
+        if (input.length == 3) {
+            if ((input[0].equals("start") &&
+                (input[1].equals("easy") || input[1].equals("user")) &&
+                (input[2].equals("easy") || input[2].equals("user")))) {
+                result = true;
+            }
+        } else if (input.length == 1) {
+            if (input[0].equals("exit")) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
     public void playGame(Terminal terminal) {
         do {
-            humanMoves(terminal);
-            if (xAmount + OAmount != 9) {
-                aiMoves(terminal);
+            if (firstPlayer.equals("user")) {
+                humanMoves(terminal, 'X');
+            } else {
+                aiMoves(terminal, 'X');
             }
+            xAmount++;
             if (OAmount + xAmount > 2) {
                 getGameResult(terminal);
+            }
+            if (currentState == ONGOING_GAME) {
+                if (secondPlayer.equals("user")) {
+                    humanMoves(terminal, 'O');
+                } else {
+                    aiMoves(terminal, 'O');
+                }
+                OAmount++;
+                if (OAmount + xAmount > 2) {
+                    getGameResult(terminal);
+                }
             }
         } while (currentState == ONGOING_GAME);
     }
 
-    private void humanMoves(Terminal terminal) {
+    private void humanMoves(Terminal terminal, char playerChar) {
         boolean isGamerMoved = false;
         String input;
         do {
@@ -59,8 +108,7 @@ public class Game {
                     terminal.println("This cell is occupied! Choose another one!");
                 } else {
                     isGamerMoved = true;
-                    grid[column - 1][row - 1] = 'X';
-                    xAmount++;
+                    grid[column - 1][row - 1] = playerChar;
                 }
             }
         } while (!isGamerMoved);
@@ -80,7 +128,7 @@ public class Game {
         return grid[column - 1][row - 1] == ' ';
     }
 
-    private void aiMoves(Terminal terminal) {
+    private void aiMoves(Terminal terminal, char playerChar) {
         boolean isAIMoved = false;
         Random random = new Random();
         int col;
@@ -89,9 +137,8 @@ public class Game {
             col = random.nextInt(3) + 1;
             row = random.nextInt(3) + 1;
             if (isCellOccupied(col, row)) {
-                grid[col - 1][row - 1] = 'O';
+                grid[col - 1][row - 1] = playerChar;
                 isAIMoved = true;
-                OAmount++;
             }
         } while (!isAIMoved);
         terminal.println("Making move level \"" + Level.EASY.getMessage() + "\"");
@@ -125,9 +172,5 @@ public class Game {
             currentState = WIN;
             terminal.println(winner + WIN.getMessage());
         }
-    }
-
-    public static char[][] getGrid() {
-        return grid;
     }
 }
