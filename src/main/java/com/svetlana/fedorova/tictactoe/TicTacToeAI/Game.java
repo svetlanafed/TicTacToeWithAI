@@ -13,7 +13,7 @@ public class Game {
     static int xAmount = 0;
     static int OAmount = 0;
 
-    void showCurrentGrid(Terminal terminal) {
+    public void showCurrentGrid(Terminal terminal) {
         terminal.println("---------");
         terminal.println(
             "| " + grid[0][0] + " " + grid[0][1] + " " + grid[0][2] + " |");
@@ -24,7 +24,19 @@ public class Game {
         terminal.println("---------");
     }
 
-    void humanMoves(Terminal terminal) {
+    public void playGame(Terminal terminal) {
+        do {
+            humanMoves(terminal);
+            if (xAmount + OAmount != 9) {
+                aiMoves(terminal);
+            }
+            if (OAmount + xAmount > 2) {
+                getGameResult(terminal);
+            }
+        } while (currentState == ONGOING_GAME);
+    }
+
+    private void humanMoves(Terminal terminal) {
         boolean isGamerMoved = false;
         String input;
         do {
@@ -55,20 +67,20 @@ public class Game {
         showCurrentGrid(terminal);
     }
 
-    boolean isCoordinatesNumbers(String[] coordinates) {
+    private boolean isCoordinatesNumbers(String[] coordinates) {
         return coordinates.length == 2 && coordinates[0].matches("\\d+") && coordinates[1]
             .matches("\\d+");
     }
 
-    boolean isCoordinatesCorrect(int column, int row) {
+    private boolean isCoordinatesCorrect(int column, int row) {
         return column >= 1 && column <= 3 && row >= 1 && row <= 3;
     }
 
-    boolean isCellOccupied(int column, int row) {
+    private boolean isCellOccupied(int column, int row) {
         return grid[column - 1][row - 1] == ' ';
     }
 
-    void aiMoves(Terminal terminal) {
+    private void aiMoves(Terminal terminal) {
         boolean isAIMoved = false;
         Random random = new Random();
         int col;
@@ -86,19 +98,7 @@ public class Game {
         showCurrentGrid(terminal);
     }
 
-    void playGame(Terminal terminal) {
-        do {
-            humanMoves(terminal);
-            if (xAmount + OAmount != 9) {
-                aiMoves(terminal);
-            }
-            if (OAmount + xAmount > 2) {
-                getGameResult(terminal);
-            }
-        } while (currentState == ONGOING_GAME);
-    }
-
-    void getGameResult(Terminal terminal) {
+    private void getGameResult(Terminal terminal) {
         char winner = ' ';
         //row and column
         for (int i = 0; i < 3; i++) {

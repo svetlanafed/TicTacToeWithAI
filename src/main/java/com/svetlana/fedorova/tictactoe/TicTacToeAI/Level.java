@@ -1,6 +1,6 @@
 package com.svetlana.fedorova.tictactoe.TicTacToeAI;
 
-public enum Level {
+enum Level {
     EASY("easy"),
     MEDIUM("medium"),
     HARD("hard");
