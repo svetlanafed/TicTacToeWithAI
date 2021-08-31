@@ -8,8 +8,8 @@ import java.util.Random;
 
 public class Game {
 
-    static char[][] grid = new char[3][3];
-    static State currentState = ONGOING_GAME;
+    private static char[][] grid = new char[3][3];
+    private static State currentState = ONGOING_GAME;
     static int xAmount = 0;
     static int OAmount = 0;
 
@@ -125,5 +125,9 @@ public class Game {
             currentState = WIN;
             terminal.println(winner + WIN.getMessage());
         }
+    }
+
+    public static char[][] getGrid() {
+        return grid;
     }
 }

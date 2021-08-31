@@ -19,7 +19,7 @@ public class StartGridFromLineImpl implements StartGrid {
         int i = 0;
         for (int j = 0; j < 3; j++) {
             for (int k = 0; k < 3; k++) {
-                Game.grid[j][k] = input.charAt(i);
+                Game.getGrid()[j][k] = input.charAt(i);
                 i++;
             }
         }
