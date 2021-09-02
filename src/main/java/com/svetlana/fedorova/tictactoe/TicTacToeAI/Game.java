@@ -54,6 +54,17 @@ public class Game {
         return result;
     }
 
+    public void showCurrentGrid(Terminal terminal) {
+        terminal.println("---------");
+        terminal.println(
+            "| " + grid[0][0] + " " + grid[0][1] + " " + grid[0][2] + " |");
+        terminal.println(
+            "| " + grid[1][0] + " " + grid[1][1] + " " + grid[1][2] + " |");
+        terminal.println(
+            "| " + grid[2][0] + " " + grid[2][1] + " " + grid[2][2] + " |");
+        terminal.println("---------");
+    }
+
     public void playGame(Terminal terminal) {
         do {
             if (firstPlayer.equals("user")) {
@@ -99,118 +110,6 @@ public class Game {
         }
     }
 
-    public void showCurrentGrid(Terminal terminal) {
-        terminal.println("---------");
-        terminal.println(
-            "| " + grid[0][0] + " " + grid[0][1] + " " + grid[0][2] + " |");
-        terminal.println(
-            "| " + grid[1][0] + " " + grid[1][1] + " " + grid[1][2] + " |");
-        terminal.println(
-            "| " + grid[2][0] + " " + grid[2][1] + " " + grid[2][2] + " |");
-        terminal.println("---------");
-    }
-
-    private boolean aiMoveIfPossibleToWin(Terminal terminal, char playerChar) {
-        boolean isAIMoved = false;
-        //row
-        for (int i = 0; i < 3; i++) {
-            if (grid[i][0] == grid[i][1] && grid[i][0] == playerChar) {
-                if (grid[i][2] == ' ') {
-                    grid[i][2] = playerChar;
-                    isAIMoved = true;
-                }
-            } else if (grid[i][1] == grid[i][2] && grid[i][1] == playerChar) {
-                if (grid[i][0] == ' ') {
-                    grid[i][0] = playerChar;
-                    isAIMoved = true;
-                }
-            } else if (grid[i][0] == grid[i][2] && grid[i][0] == playerChar) {
-                if (grid[i][1] == ' ') {
-                    grid[i][1] = playerChar;
-                    isAIMoved = true;
-                }
-            }
-        }
-        //column
-        if (!isAIMoved) {
-            for (int i = 0; i < 3; i++) {
-                if (grid[0][i] == grid[1][i] && grid[0][i] == playerChar) {
-                    if (grid[2][i] == ' ') {
-                        grid[2][i] = playerChar;
-                        isAIMoved = true;
-                    }
-                } else if (grid[1][i] == grid[2][i] && grid[1][i] == playerChar) {
-                    if (grid[0][i] == ' ') {
-                        grid[0][i] = playerChar;
-                        isAIMoved = true;
-                    }
-                } else if (grid[0][i] == grid[2][i] && grid[0][i] == playerChar) {
-                    if (grid[1][i] == ' ') {
-                        grid[1][i] = playerChar;
-                        isAIMoved = true;
-                    }
-                }
-            }
-        }
-
-        if (!isAIMoved) {
-            //1st diagonal
-            if (grid[0][0] == grid[1][1] && grid[1][1] == playerChar) {
-                if (grid[2][2] == ' ') {
-                    grid[2][2] = playerChar;
-                }
-            } else if (grid[1][1] == grid[2][2] && grid[1][1] == playerChar) {
-                if (grid[0][0] == ' ') {
-                    grid[0][0] = playerChar;
-                }
-            } else if (grid[0][0] == grid[2][2] && grid[2][2] == playerChar) {
-                if (grid[1][1] == ' ') {
-                    grid[1][1] = playerChar;
-                }
-            }
-        }
-        if (!isAIMoved) {
-            //2d diagonal
-            if (grid[2][0] == grid[1][1] && grid[1][1] == playerChar) {
-                if (grid[0][2] == ' ') {
-                    grid[0][2] = playerChar;
-                }
-            } else if (grid[1][1] == grid[0][2] && grid[0][2] == playerChar) {
-                if (grid[2][0] == ' ') {
-                    grid[2][0] = playerChar;
-                }
-            } else if (grid[2][0] == grid[0][2] && grid[2][0] == playerChar) {
-                if (grid[1][1] == ' ') {
-                    grid[1][1] = playerChar;
-                }
-            }
-        }
-        return isAIMoved;
-    }
-
-    private boolean aiMoveToBlockWin(Terminal terminal, char playerChar) {
-        boolean isAIMoved = false;
-
-
-
-        return isAIMoved;
-    }
-
-    private void aiMediumMove(Terminal terminal, char playerChar) {
-        boolean isAIMoved;
-        isAIMoved = aiMoveIfPossibleToWin(terminal, playerChar);
-        if (!isAIMoved) {
-            isAIMoved = aiMoveToBlockWin(terminal, playerChar);
-        }
-        if (!isAIMoved) {
-            aiRandomMove(terminal, playerChar);
-        }
-    }
-
-    private void aiHardMove(Terminal terminal, char playerChar) {
-        //метод к следующему модулю
-    }
-
     private void aiRandomMove(Terminal terminal, char playerChar) {
         boolean isAIMoved = false;
         Random random = new Random();
@@ -224,6 +123,102 @@ public class Game {
                 isAIMoved = true;
             }
         } while (!isAIMoved);
+    }
+
+    private void aiMediumMove(Terminal terminal, char playerChar) {
+        boolean isAIMoved;
+        isAIMoved = aiMoveToWinOrBlock(terminal, playerChar, playerChar);
+        if (!isAIMoved) {
+            if (playerChar == 'X') {
+                isAIMoved = aiMoveToWinOrBlock(terminal, 'O', playerChar);
+            } else {
+                isAIMoved = aiMoveToWinOrBlock(terminal, 'X', playerChar);
+            }
+        }
+        if (!isAIMoved) {
+            aiRandomMove(terminal, playerChar);
+        }
+    }
+
+    private boolean aiMoveToWinOrBlock(Terminal terminal, char playerChar, char inputChar) {
+        boolean isAIMoved = false;
+        //row
+        for (int i = 0; i < 3; i++) {
+            if (grid[i][0] == grid[i][1] && grid[i][0] == playerChar) {
+                if (grid[i][2] == ' ') {
+                    grid[i][2] = inputChar;
+                    isAIMoved = true;
+                }
+            } else if (grid[i][1] == grid[i][2] && grid[i][1] == playerChar) {
+                if (grid[i][0] == ' ') {
+                    grid[i][0] = inputChar;
+                    isAIMoved = true;
+                }
+            } else if (grid[i][0] == grid[i][2] && grid[i][0] == playerChar) {
+                if (grid[i][1] == ' ') {
+                    grid[i][1] = inputChar;
+                    isAIMoved = true;
+                }
+            }
+        }
+        //column
+        if (!isAIMoved) {
+            for (int i = 0; i < 3; i++) {
+                if (grid[0][i] == grid[1][i] && grid[0][i] == playerChar) {
+                    if (grid[2][i] == ' ') {
+                        grid[2][i] = inputChar;
+                        isAIMoved = true;
+                    }
+                } else if (grid[1][i] == grid[2][i] && grid[1][i] == playerChar) {
+                    if (grid[0][i] == ' ') {
+                        grid[0][i] = inputChar;
+                        isAIMoved = true;
+                    }
+                } else if (grid[0][i] == grid[2][i] && grid[0][i] == playerChar) {
+                    if (grid[1][i] == ' ') {
+                        grid[1][i] = inputChar;
+                        isAIMoved = true;
+                    }
+                }
+            }
+        }
+        //1st diagonal
+        if (!isAIMoved) {
+            if (grid[0][0] == grid[1][1] && grid[1][1] == playerChar) {
+                if (grid[2][2] == ' ') {
+                    grid[2][2] = inputChar;
+                }
+            } else if (grid[1][1] == grid[2][2] && grid[1][1] == playerChar) {
+                if (grid[0][0] == ' ') {
+                    grid[0][0] = inputChar;
+                }
+            } else if (grid[0][0] == grid[2][2] && grid[2][2] == playerChar) {
+                if (grid[1][1] == ' ') {
+                    grid[1][1] = inputChar;
+                }
+            }
+        }
+        //2d diagonal
+        if (!isAIMoved) {
+            if (grid[2][0] == grid[1][1] && grid[1][1] == playerChar) {
+                if (grid[0][2] == ' ') {
+                    grid[0][2] = inputChar;
+                }
+            } else if (grid[1][1] == grid[0][2] && grid[0][2] == playerChar) {
+                if (grid[2][0] == ' ') {
+                    grid[2][0] = inputChar;
+                }
+            } else if (grid[2][0] == grid[0][2] && grid[2][0] == playerChar) {
+                if (grid[1][1] == ' ') {
+                    grid[1][1] = inputChar;
+                }
+            }
+        }
+        return isAIMoved;
+    }
+
+    private void aiHardMove(Terminal terminal, char playerChar) {
+        //метод к следующему модулю
     }
 
     private void humanMoves(Terminal terminal, char playerChar) {
