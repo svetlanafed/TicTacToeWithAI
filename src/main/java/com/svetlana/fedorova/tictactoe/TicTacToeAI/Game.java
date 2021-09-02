@@ -110,17 +110,7 @@ public class Game {
         terminal.println("---------");
     }
 
-    private void aiMoveIfPossibleToWin(Terminal terminal, char playerChar) {
-
-    }
-
-    private void aiMoveToBlockWin(Terminal terminal, char playerChar) {
-
-    }
-
-    private void aiMediumMove(Terminal terminal, char playerChar) {
-        //проверка, есть ли возможность выиграть в один ход
-        //надо добавить то же самое, но блокировку выигрыша соперника
+    private boolean aiMoveIfPossibleToWin(Terminal terminal, char playerChar) {
         boolean isAIMoved = false;
         //row
         for (int i = 0; i < 3; i++) {
@@ -194,6 +184,23 @@ public class Game {
                     grid[1][1] = playerChar;
                 }
             }
+        }
+        return isAIMoved;
+    }
+
+    private boolean aiMoveToBlockWin(Terminal terminal, char playerChar) {
+        boolean isAIMoved = false;
+
+
+
+        return isAIMoved;
+    }
+
+    private void aiMediumMove(Terminal terminal, char playerChar) {
+        boolean isAIMoved;
+        isAIMoved = aiMoveIfPossibleToWin(terminal, playerChar);
+        if (!isAIMoved) {
+            isAIMoved = aiMoveToBlockWin(terminal, playerChar);
         }
         if (!isAIMoved) {
             aiRandomMove(terminal, playerChar);
