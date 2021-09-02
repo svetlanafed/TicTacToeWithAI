@@ -1,5 +1,8 @@
 package com.svetlana.fedorova.tictactoe.TicTacToeAI;
 
+import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Level.EASY;
+import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Level.HARD;
+import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Level.MEDIUM;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.DRAW;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.ONGOING_GAME;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.WIN;
@@ -14,17 +17,6 @@ public class Game {
     private static String secondPlayer;
     static int xAmount = 0;
     static int oAmount = 0;
-
-    public void showCurrentGrid(Terminal terminal) {
-        terminal.println("---------");
-        terminal.println(
-            "| " + grid[0][0] + " " + grid[0][1] + " " + grid[0][2] + " |");
-        terminal.println(
-            "| " + grid[1][0] + " " + grid[1][1] + " " + grid[1][2] + " |");
-        terminal.println(
-            "| " + grid[2][0] + " " + grid[2][1] + " " + grid[2][2] + " |");
-        terminal.println("---------");
-    }
 
     public String getGameParam(Terminal terminal, String inputLine) {
         String command = null;
@@ -47,9 +39,11 @@ public class Game {
     private boolean isCommandCorrect(String[] input) {
         boolean result = false;
         if (input.length == 3) {
-            if ((input[0].equals("start") &&
-                (input[1].equals("easy") || input[1].equals("user")) &&
-                (input[2].equals("easy") || input[2].equals("user")))) {
+            if (input[0].equals("start") &&
+                (input[1].equals("easy") || input[1].equals("user") || input[1].equals("medium")
+                    || input[1].equals("hard")) &&
+                (input[2].equals("easy") || input[2].equals("user") || input[2].equals(
+                    "medium") || input[2].equals("hard"))) {
                 result = true;
             }
         } else if (input.length == 1) {
@@ -65,7 +59,7 @@ public class Game {
             if (firstPlayer.equals("user")) {
                 humanMoves(terminal, 'X');
             } else {
-                aiMoves(terminal, 'X');
+                aiMove(terminal, 'X', firstPlayer);
             }
             xAmount++;
             if (oAmount + xAmount > 2) {
@@ -75,7 +69,7 @@ public class Game {
                 if (secondPlayer.equals("user")) {
                     humanMoves(terminal, 'O');
                 } else {
-                    aiMoves(terminal, 'O');
+                    aiMove(terminal, 'O', secondPlayer);
                 }
                 oAmount++;
                 if (oAmount + xAmount > 2) {
@@ -83,6 +77,146 @@ public class Game {
                 }
             }
         } while (currentState == ONGOING_GAME);
+    }
+
+    private void aiMove(Terminal terminal, char playerChar, String level) {
+        switch (level) {
+            case "easy":
+                aiRandomMove(terminal, playerChar);
+                terminal.println("Making move level \"" + EASY.getMessage() + "\"");
+                showCurrentGrid(terminal);
+                break;
+            case "medium":
+                aiMediumMove(terminal, playerChar);
+                terminal.println("Making move level \"" + MEDIUM.getMessage() + "\"");
+                showCurrentGrid(terminal);
+                break;
+            case "hard":
+                aiHardMove(terminal, playerChar);
+                terminal.println("Making move level \"" + HARD.getMessage() + "\"");
+                showCurrentGrid(terminal);
+                break;
+        }
+    }
+
+    public void showCurrentGrid(Terminal terminal) {
+        terminal.println("---------");
+        terminal.println(
+            "| " + grid[0][0] + " " + grid[0][1] + " " + grid[0][2] + " |");
+        terminal.println(
+            "| " + grid[1][0] + " " + grid[1][1] + " " + grid[1][2] + " |");
+        terminal.println(
+            "| " + grid[2][0] + " " + grid[2][1] + " " + grid[2][2] + " |");
+        terminal.println("---------");
+    }
+
+    private void aiMoveIfPossibleToWin(Terminal terminal, char playerChar) {
+
+    }
+
+    private void aiMoveToBlockWin(Terminal terminal, char playerChar) {
+
+    }
+
+    private void aiMediumMove(Terminal terminal, char playerChar) {
+        //проверка, есть ли возможность выиграть в один ход
+        //надо добавить то же самое, но блокировку выигрыша соперника
+        boolean isAIMoved = false;
+        //row
+        for (int i = 0; i < 3; i++) {
+            if (grid[i][0] == grid[i][1] && grid[i][0] == playerChar) {
+                if (grid[i][2] == ' ') {
+                    grid[i][2] = playerChar;
+                    isAIMoved = true;
+                }
+            } else if (grid[i][1] == grid[i][2] && grid[i][1] == playerChar) {
+                if (grid[i][0] == ' ') {
+                    grid[i][0] = playerChar;
+                    isAIMoved = true;
+                }
+            } else if (grid[i][0] == grid[i][2] && grid[i][0] == playerChar) {
+                if (grid[i][1] == ' ') {
+                    grid[i][1] = playerChar;
+                    isAIMoved = true;
+                }
+            }
+        }
+        //column
+        if (!isAIMoved) {
+            for (int i = 0; i < 3; i++) {
+                if (grid[0][i] == grid[1][i] && grid[0][i] == playerChar) {
+                    if (grid[2][i] == ' ') {
+                        grid[2][i] = playerChar;
+                        isAIMoved = true;
+                    }
+                } else if (grid[1][i] == grid[2][i] && grid[1][i] == playerChar) {
+                    if (grid[0][i] == ' ') {
+                        grid[0][i] = playerChar;
+                        isAIMoved = true;
+                    }
+                } else if (grid[0][i] == grid[2][i] && grid[0][i] == playerChar) {
+                    if (grid[1][i] == ' ') {
+                        grid[1][i] = playerChar;
+                        isAIMoved = true;
+                    }
+                }
+            }
+        }
+
+        if (!isAIMoved) {
+            //1st diagonal
+            if (grid[0][0] == grid[1][1] && grid[1][1] == playerChar) {
+                if (grid[2][2] == ' ') {
+                    grid[2][2] = playerChar;
+                }
+            } else if (grid[1][1] == grid[2][2] && grid[1][1] == playerChar) {
+                if (grid[0][0] == ' ') {
+                    grid[0][0] = playerChar;
+                }
+            } else if (grid[0][0] == grid[2][2] && grid[2][2] == playerChar) {
+                if (grid[1][1] == ' ') {
+                    grid[1][1] = playerChar;
+                }
+            }
+        }
+        if (!isAIMoved) {
+            //2d diagonal
+            if (grid[2][0] == grid[1][1] && grid[1][1] == playerChar) {
+                if (grid[0][2] == ' ') {
+                    grid[0][2] = playerChar;
+                }
+            } else if (grid[1][1] == grid[0][2] && grid[0][2] == playerChar) {
+                if (grid[2][0] == ' ') {
+                    grid[2][0] = playerChar;
+                }
+            } else if (grid[2][0] == grid[0][2] && grid[2][0] == playerChar) {
+                if (grid[1][1] == ' ') {
+                    grid[1][1] = playerChar;
+                }
+            }
+        }
+        if (!isAIMoved) {
+            aiRandomMove(terminal, playerChar);
+        }
+    }
+
+    private void aiHardMove(Terminal terminal, char playerChar) {
+        //метод к следующему модулю
+    }
+
+    private void aiRandomMove(Terminal terminal, char playerChar) {
+        boolean isAIMoved = false;
+        Random random = new Random();
+        int col;
+        int row;
+        do {
+            col = random.nextInt(3) + 1;
+            row = random.nextInt(3) + 1;
+            if (isCellOccupied(col, row)) {
+                grid[col - 1][row - 1] = playerChar;
+                isAIMoved = true;
+            }
+        } while (!isAIMoved);
     }
 
     private void humanMoves(Terminal terminal, char playerChar) {
@@ -126,23 +260,6 @@ public class Game {
 
     private boolean isCellOccupied(int column, int row) {
         return grid[column - 1][row - 1] == ' ';
-    }
-
-    private void aiMoves(Terminal terminal, char playerChar) {
-        boolean isAIMoved = false;
-        Random random = new Random();
-        int col;
-        int row;
-        do {
-            col = random.nextInt(3) + 1;
-            row = random.nextInt(3) + 1;
-            if (isCellOccupied(col, row)) {
-                grid[col - 1][row - 1] = playerChar;
-                isAIMoved = true;
-            }
-        } while (!isAIMoved);
-        terminal.println("Making move level \"" + Level.EASY.getMessage() + "\"");
-        showCurrentGrid(terminal);
     }
 
     private void getGameResult(Terminal terminal) {
