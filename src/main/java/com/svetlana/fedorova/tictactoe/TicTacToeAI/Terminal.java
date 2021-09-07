@@ -26,7 +26,6 @@ public class Terminal {
 
     public void printf(String s, Object... objects) {
         out.printf(s, objects);
-        out.flush();
     }
 
     public String readLine() {
