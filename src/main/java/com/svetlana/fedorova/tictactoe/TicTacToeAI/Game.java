@@ -7,7 +7,7 @@ import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.WIN;
 public class Game {
 
     public static char[][] grid = new char[3][3];
-    private static State currentState = ONGOING_GAME;
+    static State currentState = ONGOING_GAME;
     private static String firstPlayer;
     private static String secondPlayer;
     static int xAmount = 0;
@@ -74,7 +74,7 @@ public class Game {
             }
             xAmount++;
             if (oAmount + xAmount > 2) {
-                getGameResult(terminal);
+                getGameResult();
             }
             if (currentState == ONGOING_GAME) {
                 if (secondPlayer.equals("user")) {
@@ -84,8 +84,13 @@ public class Game {
                 }
                 oAmount++;
                 if (oAmount + xAmount > 2) {
-                    getGameResult(terminal);
+                    getGameResult();
+                    if (currentState != ONGOING_GAME) {
+                        printGameResult(terminal, currentState);
+                    }
                 }
+            } else {
+                printGameResult(terminal, currentState);
             }
         } while (currentState == ONGOING_GAME);
     }
@@ -108,7 +113,7 @@ public class Game {
         showCurrentGrid(terminal);
     }
 
-    private void getGameResult(Terminal terminal) {
+    char getGameResult() {
         char winner = ' ';
         //row and column
         for (int i = 0; i < 3; i++) {
@@ -130,10 +135,21 @@ public class Game {
             currentState = ONGOING_GAME;
         } else if (winner == ' ' && xAmount + oAmount == 9) {
             currentState = DRAW;
-            terminal.println(DRAW.getMessage());
         } else if (winner != ' ') {
             currentState = WIN;
-            terminal.println(winner + WIN.getMessage());
+        }
+        return winner;
+    }
+
+    private void printGameResult(Terminal terminal, State currentState) {
+        char winner = getGameResult();
+        switch (currentState) {
+            case WIN:
+                terminal.println(winner + WIN.getMessage());
+                break;
+            case DRAW:
+                terminal.println(DRAW.getMessage());
+                break;
         }
     }
 }

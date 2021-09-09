@@ -1,77 +1,89 @@
 package com.svetlana.fedorova.tictactoe.TicTacToeAI;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Game.currentState;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Game.grid;
+import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.ONGOING_GAME;
 
 public class AIHardImpl extends AI {
 
-    private static String firstPlayer = "X";
-    private static String secondPlayer = "O";
+    private static final int MAX_DEPTH = 6;
+    Game game = new Game();
 
     @Override
     public void move(Terminal terminal, char playerChar) {
-
+        int[] move = getBestMove(playerChar);
+        grid[move[0]][move[1]] = playerChar;
+        currentState = ONGOING_GAME;
     }
 
-    private List<String> getGridBeforeMinimax() {
-        List<String> board = new ArrayList<>();
-        int k = 0;
+    private int[] getBestMove(char playerChar) {
+        int[] bestMove = new int[2];
+        int bestValue = Integer.MIN_VALUE;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (grid[i][j] == ' ') {
-                    board.add(String.valueOf(k));
-                } else {
-                    board.add(String.valueOf(grid[i][j]));
+                    grid[i][j] = playerChar;
+                    int moveValue = miniMax(MAX_DEPTH, false, playerChar);
+                    grid[i][j] = ' ';
+                    if (moveValue > bestValue) {
+                        bestValue = moveValue;
+                        bestMove[0] = i;
+                        bestMove[1] = j;
+                    }
                 }
-                k++;
             }
         }
-        return board;
+        return bestMove;
     }
 
-    private List<Integer> getEmptyIndices(List<String> board) {
-        List<Integer> emptyIndices = new ArrayList<>();
-        for (String cell : board) {
-            if (!cell.equals("X") && !cell.equals("O")) {
-                emptyIndices.add(Integer.parseInt(cell));
+    private int miniMax(int depth, boolean isMax, char playerChar) {
+        int boardVal = winning(playerChar);
+        if (boardVal == Math.abs(10) || boardVal == 0 || depth == 0) {
+            return boardVal;
+        }
+
+        if (isMax) {
+            int highestValue = Integer.MIN_VALUE;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (grid[i][j] == ' ') {
+                        grid[i][j] = playerChar;
+                        highestValue = Math.max(highestValue,
+                            miniMax(depth - 1, false, playerChar));
+                        grid[i][j] = ' ';
+                    }
+                }
             }
+            return highestValue;
+        } else {
+            int lowestValue = Integer.MAX_VALUE;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (grid[i][j] == ' ') {
+                        if (playerChar == 'X') {
+                            grid[i][j] = 'O';
+                        } else {
+                            grid[i][j] = 'X';
+                        }
+                        lowestValue = Math.min(lowestValue, miniMax(depth - 1, true, playerChar));
+                        grid[i][j] = ' ';
+                    }
+                }
+            }
+            return lowestValue;
         }
-        return emptyIndices;
     }
 
-    boolean winning(List<String> board, String player) {
-        return (board.get(0).equals(player) && board.get(1).equals(player) && board.get(2)
-            .equals(player)) ||
-            (board.get(3).equals(player) && board.get(4).equals(player) && board.get(5)
-                .equals(player)) ||
-            (board.get(6).equals(player) && board.get(7).equals(player) && board.get(8)
-                .equals(player)) ||
-            (board.get(0).equals(player) && board.get(3).equals(player) && board.get(6)
-                .equals(player)) ||
-            (board.get(1).equals(player) && board.get(4).equals(player) && board.get(7)
-                .equals(player)) ||
-            (board.get(2).equals(player) && board.get(5).equals(player) && board.get(8)
-                .equals(player)) ||
-            (board.get(0).equals(player) && board.get(4).equals(player) && board.get(8)
-                .equals(player)) ||
-            (board.get(2).equals(player) && board.get(4).equals(player) && board.get(6)
-                .equals(player));
-    }
-
-    int minimax(List<String> board, String player) {
-        List<Integer> emptyIndices = getEmptyIndices(board);
-
-        int result = 0;
-        if (winning(board, firstPlayer)) {
-            result = -1;
-        } else if (winning(board, secondPlayer)) {
-            result = 1;
-        } else if (emptyIndices.size() == 0) {
+    private int winning(char playerChar) {
+        char winner = game.getGameResult();
+        if (winner == playerChar) {
+            return 10;
+        } else if (winner != playerChar && winner != ' ') {
+            return -10;
+        } else if (winner == ' ' && currentState == ONGOING_GAME) {
+            return 2;
         }
-        return result;
+        return 0;
     }
-
-
 }
+
