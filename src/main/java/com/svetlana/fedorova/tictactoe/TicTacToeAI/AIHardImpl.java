@@ -2,18 +2,17 @@ package com.svetlana.fedorova.tictactoe.TicTacToeAI;
 
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Game.currentState;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Game.grid;
+import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.DRAW;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.State.ONGOING_GAME;
 
 public class AIHardImpl extends AI {
 
-    private static final int MAX_DEPTH = 6;
     Game game = new Game();
 
     @Override
     public void move(Terminal terminal, char playerChar) {
         int[] move = getBestMove(playerChar);
         grid[move[0]][move[1]] = playerChar;
-        currentState = ONGOING_GAME;
     }
 
     private int[] getBestMove(char playerChar) {
@@ -23,8 +22,9 @@ public class AIHardImpl extends AI {
             for (int j = 0; j < 3; j++) {
                 if (grid[i][j] == ' ') {
                     grid[i][j] = playerChar;
-                    int moveValue = miniMax(MAX_DEPTH, false, playerChar);
+                    int moveValue = miniMax(false, playerChar);
                     grid[i][j] = ' ';
+                    currentState = ONGOING_GAME;
                     if (moveValue > bestValue) {
                         bestValue = moveValue;
                         bestMove[0] = i;
@@ -36,9 +36,9 @@ public class AIHardImpl extends AI {
         return bestMove;
     }
 
-    private int miniMax(int depth, boolean isMax, char playerChar) {
+    private int miniMax(boolean isMax, char playerChar) {
         int boardVal = winning(playerChar);
-        if (boardVal == Math.abs(10) || boardVal == 0 || depth == 0) {
+        if (boardVal == 10 || boardVal == -10 || boardVal == 0) {
             return boardVal;
         }
 
@@ -49,8 +49,9 @@ public class AIHardImpl extends AI {
                     if (grid[i][j] == ' ') {
                         grid[i][j] = playerChar;
                         highestValue = Math.max(highestValue,
-                            miniMax(depth - 1, false, playerChar));
+                            miniMax(false, playerChar));
                         grid[i][j] = ' ';
+                        currentState = ONGOING_GAME;
                     }
                 }
             }
@@ -65,8 +66,9 @@ public class AIHardImpl extends AI {
                         } else {
                             grid[i][j] = 'X';
                         }
-                        lowestValue = Math.min(lowestValue, miniMax(depth - 1, true, playerChar));
+                        lowestValue = Math.min(lowestValue, miniMax(true, playerChar));
                         grid[i][j] = ' ';
+                        currentState = ONGOING_GAME;
                     }
                 }
             }
@@ -80,10 +82,10 @@ public class AIHardImpl extends AI {
             return 10;
         } else if (winner != playerChar && winner != ' ') {
             return -10;
-        } else if (winner == ' ' && currentState == ONGOING_GAME) {
-            return 2;
+        } else if (winner == ' ' && currentState == DRAW) {
+            return 0;
         }
-        return 0;
+        return 2;
     }
 }
 
