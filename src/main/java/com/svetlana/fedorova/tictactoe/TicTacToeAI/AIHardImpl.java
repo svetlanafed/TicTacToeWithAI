@@ -39,8 +39,8 @@ public class AIHardImpl extends AI {
             for (int j = 0; j < 3; j++) {
                 if (k == move) {
                     grid[i][j] = hardPlayer;
-                    k++;
                 }
+                k++;
             }
         }
     }
@@ -73,18 +73,18 @@ public class AIHardImpl extends AI {
         }
 
         Map<Integer, Integer> moves = new HashMap<>();
-        for (int availSpot : availSpots) {
-            moves.put(newBoard[availSpot], null);
-            int temp = newBoard[availSpot];
-            newBoard[availSpot] = player;
+        for (int i = 0; i < availSpots.length; i++) {
+            moves.put(newBoard[availSpots[i]], null);
+            int temp = newBoard[availSpots[i]];
+            newBoard[availSpots[i]] = player;
             int result;
             if (player == hardPlayer) {
                 result = miniMax(newBoard, nonHardPlayer);
             } else {
                 result = miniMax(newBoard, hardPlayer);
             }
-            moves.put(availSpot, result);
-            newBoard[availSpot] = temp;
+            moves.put(availSpots[i], result);
+            newBoard[availSpots[i]] = temp;
         }
         int bestMove = 0;
         if (player == hardPlayer) {
