@@ -3,10 +3,6 @@ package com.svetlana.fedorova.tictactoe.TicTacToeAI;
 import static com.svetlana.fedorova.tictactoe.TicTacToeAI.Game.grid;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class AIHardImpl extends AI {
 
@@ -33,16 +29,69 @@ public class AIHardImpl extends AI {
                 }
             }
         }
-        int move = miniMax(originalBoard, hardPlayer);
+
+        int move = bestMove(originalBoard);
         int k = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (k == move) {
                     grid[i][j] = hardPlayer;
+                    i = 3;
+                    j = 3;
                 }
                 k++;
             }
         }
+    }
+
+    int bestMove(int[] newBoard) {
+        int bestScore = -10000;
+        int move = 0;
+        int[] availSpots = emptyIndices(newBoard);
+        for (int i = 0; i < availSpots.length; i++) {
+            int temp = newBoard[availSpots[i]];
+            newBoard[availSpots[i]] = hardPlayer;
+            int score = miniMax(newBoard, false);
+            newBoard[availSpots[i]] = temp;
+            if (score > bestScore) {
+                bestScore = score;
+                move = newBoard[availSpots[i]];
+            }
+        }
+        return move;
+    }
+
+    private int miniMax(int[] newBoard, boolean isMaximizing) {
+        int[] availSpots = emptyIndices(newBoard);
+
+        if (winning(newBoard, nonHardPlayer)) {
+            return -10;
+        } else if (winning(newBoard, hardPlayer)) {
+            return 10;
+        } else if (availSpots.length == 0) {
+            return 0;
+        }
+        int bestScore;
+        if (isMaximizing) {
+            bestScore = -10000;
+            for (int i = 0; i < availSpots.length; i++) {
+                int temp = newBoard[availSpots[i]];
+                newBoard[availSpots[i]] = hardPlayer;
+                int score = miniMax(newBoard, false);
+                newBoard[availSpots[i]] = temp;
+                bestScore = Math.max(score, bestScore);
+            }
+        } else {
+            bestScore = 10000;
+            for (int i = 0; i < availSpots.length; i++) {
+                int temp = newBoard[availSpots[i]];
+                newBoard[availSpots[i]] = nonHardPlayer;
+                int score = miniMax(newBoard, true);
+                newBoard[availSpots[i]] = temp;
+                bestScore = Math.min(score, bestScore);
+            }
+        }
+        return bestScore;
     }
 
     private int[] emptyIndices(int[] board) {
@@ -59,57 +108,5 @@ public class AIHardImpl extends AI {
             (board[2] == player && board[5] == player && board[8] == player) ||
             (board[0] == player && board[4] == player && board[8] == player) ||
             (board[2] == player && board[4] == player && board[6] == player);
-    }
-
-    private int miniMax(int[] newBoard, char player) {
-        int[] availSpots = emptyIndices(newBoard);
-
-        if (winning(newBoard, nonHardPlayer)) {
-            return -10;
-        } else if (winning(newBoard, hardPlayer)) {
-            return 10;
-        } else if (availSpots.length == 0) {
-            return 0;
-        }
-
-        Map<Integer, Integer> moves = new HashMap<>();
-        for (int i = 0; i < availSpots.length; i++) {
-            moves.put(newBoard[availSpots[i]], null);
-            int temp = newBoard[availSpots[i]];
-            newBoard[availSpots[i]] = player;
-            int result;
-            if (player == hardPlayer) {
-                result = miniMax(newBoard, nonHardPlayer);
-            } else {
-                result = miniMax(newBoard, hardPlayer);
-            }
-            moves.put(availSpots[i], result);
-            newBoard[availSpots[i]] = temp;
-        }
-        int bestMove = 0;
-        if (player == hardPlayer) {
-            int bestScore = -1000;
-            int maxValue = Collections.max(moves.values());
-            if (maxValue > bestScore) {
-                bestScore = maxValue;
-            }
-            for (Entry<Integer, Integer> entry : moves.entrySet()) {
-                if (entry.getValue() == maxValue) {
-                    bestMove = entry.getKey();
-                }
-            }
-        } else {
-            int bestScore = 1000;
-            int minValue = Collections.min(moves.values());
-            if (minValue < bestScore) {
-                bestScore = minValue;
-            }
-            for (Entry<Integer, Integer> entry : moves.entrySet()) {
-                if (entry.getValue() == minValue) {
-                    bestMove = entry.getKey();
-                }
-            }
-        }
-        return bestMove;
     }
 }
