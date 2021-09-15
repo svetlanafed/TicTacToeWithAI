@@ -8,8 +8,8 @@ public class Game {
 
     public static char[][] grid = new char[3][3];
     static State currentState = ONGOING_GAME;
-    private static String firstPlayer;
-    private static String secondPlayer;
+    static String firstPlayer;
+    static String secondPlayer;
     static int xAmount = 0;
     static int oAmount = 0;
 
