@@ -105,10 +105,10 @@ class GameTest {
     }
 
     @Test
-    void playGameMediumAgainstEasy() {
+    void playGameHardAgainstEasy() {
         StartGrid newGrid = new StartStandardGridImpl();
-        game.getGameParam(terminal, "start medium easy");
-        Assumptions.assumeTrue(firstPlayer.equals("medium"));
+        game.getGameParam(terminal, "start hard easy");
+        Assumptions.assumeTrue(firstPlayer.equals("hard"));
         Assumptions.assumeTrue(secondPlayer.equals("easy"));
         Assumptions.assumeTrue(currentState == ONGOING_GAME);
 
