@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -114,13 +115,13 @@ class GameTest {
         assertThat(game.getGameResult()).isEqualTo('X');
     }
 
-    @Test
-    void getWinGameResultDiagonal() {
-        char[] startString = new char[]{'X', 'O', ' ', ' ', 'X', ' ', ' ', 'O', 'X'};
+    @ParameterizedTest
+    @MethodSource(value = "charParamsGenerator")
+    void getWinGameResult(char[] array) {
         int n = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                grid[i][j] = startString[n];
+                grid[i][j] = array[n];
                 n++;
             }
         }
@@ -134,43 +135,11 @@ class GameTest {
         }
     }
 
-    @Test
-    void getWinGameResultRow() {
-        char[] startString = new char[]{'X', 'O', 'O', 'O', ' ', ' ', 'X', 'X', 'X'};
-        int n = 0;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i][j] = startString[n];
-                n++;
-            }
-        }
-        assertThat(game.getGameResult()).isEqualTo('X');
-        assertThat(currentState).isSameAs(WIN);
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i][j] = ' ';
-            }
-        }
-    }
-
-    @Test
-    void getWinGameResultColumn() {
-        char[] startString = new char[]{' ', 'X', 'O', ' ', 'X', 'O', 'X', ' ', 'O'};
-        int n = 0;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i][j] = startString[n];
-                n++;
-            }
-        }
-        assertThat(game.getGameResult()).isEqualTo('O');
-        assertThat(currentState).isSameAs(WIN);
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i][j] = ' ';
-            }
-        }
+    static Stream<Arguments> charParamsGenerator() {
+        return Stream.of(
+            Arguments.arguments(new char[]{'X', 'O', ' ', ' ', 'X', ' ', ' ', 'O', 'X'}),//diagonal
+            Arguments.arguments(new char[]{'X', 'O', 'O', 'O', ' ', ' ', 'X', 'X', 'X'}),//row
+            Arguments.arguments(new char[]{' ', 'O', 'X', ' ', 'O', 'X', 'O', ' ', 'X'})//column
+        );
     }
 }
